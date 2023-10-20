@@ -12,5 +12,5 @@ nav:
     - Compiling the Controller Firmware: fwdocs/compiling.md
     - Controller Firmware Overview: fwdocs/controllerfw.md
     - Battery PCB Firmware Overview: fwdocs/batteryfw.md
-theme: readthedocs
-# theme: material
+# theme: readthedocs
+theme: material
