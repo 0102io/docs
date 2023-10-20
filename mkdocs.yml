@@ -1,0 +1,16 @@
+site_name: TappyTap Documentation
+
+site_url: https://0102.io/tappytap/docs
+nav: 
+  - Home: index.md
+  - About: about.md
+  - Hardware: hwdocs.md
+  - Software: swdocs.md
+  - Firmware: 
+    - Overview: fwdocs/index.md
+    - Communication Protocol: fwdocs/protocol.md
+    - Compiling the Controller Firmware: fwdocs/compiling.md
+    - Controller Firmware Overview: fwdocs/controllerfw.md
+    - Battery PCB Firmware Overview: fwdocs/batteryfw.md
+theme: readthedocs
+# theme: material
