@@ -1,14 +1,14 @@
-# Communication Protocol for Client Device and TappyTap Driver Board
+# Communication Protocol for Client Device and TappyTap Controller
 
-This section outlines the communication protocol for a client device to connect to a the TappyTap Driver Board using Bluetooth 5 (LE). see 'script.js' in the examples folder for an implementation of this protocol.
+This section outlines the communication protocol for a client device to connect to a the TappyTap Controller using Bluetooth 5 (LE). see 'script.js' in the examples folder for an implementation of this protocol.
 
-## Connecting to the Driver Board
+## Connecting to the Controller
 
-The Driver Board advertises itself as a BLE server with the service UUID `4fafc201-1fb5-459e-8fcc-c5c9c331914b`. The client device should initiate a scan for BLE devices and look for the one advertising this service UUID. Once found, the client device should establish a connection to the BLE server (the Driver Board).
+The Controller advertises itself as a BLE server with the service UUID `4fafc201-1fb5-459e-8fcc-c5c9c331914b`. The client device should initiate a scan for BLE devices and look for the one advertising this service UUID. Once found, the client device should establish a connection to the BLE server (the Controller).
 
-## Sending Messages to the Driver Board
+## Sending Messages to the Controller
 
-To send a message from the client device to the Driver Board, the client device should write to the BLE characteristic with the UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`.
+To send a message from the client device to the Controller, the client device should write to the BLE characteristic with the UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`.
 
 ### Sent Message Types and Structure
 
@@ -50,9 +50,9 @@ To send a message from the client device to the Driver Board, the client device 
     - Byte 3: off duration (tenths of a milliseond - note that this is different from TAP_OUT and TAP_OUT_EXPLICIT which use ms for off duration) that will be used for all taps in the pattern. The lower limit is 0 (no delay), the upper limit is the same as for TAP_OUT and TAP_OUT_EXPLICIT.
     - Byte 4 to n: row and column index pairs for the tap sequences
 
-## Receiving Messages from the Driver Board
+## Receiving Messages from the Controller
 
-The client device should also monitor the same BLE characteristic (UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`) for notifications to receive messages from the Driver Board.
+The client device should also monitor the same BLE characteristic (UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`) for notifications to receive messages from the Controller.
 
 ### Received Message Types and Structure
 

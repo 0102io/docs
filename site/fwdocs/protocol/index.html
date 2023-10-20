@@ -373,17 +373,17 @@
       
         <li class="md-nav__item">
   <a href="#connecting-to-the-driver-board" class="md-nav__link">
-    Connecting to the Driver Board
+    Connecting to the Controller
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#sending-messages-to-the-driver-board" class="md-nav__link">
-    Sending Messages to the Driver Board
+    Sending Messages to the Controller
   </a>
   
-    <nav class="md-nav" aria-label="Sending Messages to the Driver Board">
+    <nav class="md-nav" aria-label="Sending Messages to the Controller">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -400,10 +400,10 @@
       
         <li class="md-nav__item">
   <a href="#receiving-messages-from-the-driver-board" class="md-nav__link">
-    Receiving Messages from the Driver Board
+    Receiving Messages from the Controller
   </a>
   
-    <nav class="md-nav" aria-label="Receiving Messages from the Driver Board">
+    <nav class="md-nav" aria-label="Receiving Messages from the Controller">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -522,17 +522,17 @@
       
         <li class="md-nav__item">
   <a href="#connecting-to-the-driver-board" class="md-nav__link">
-    Connecting to the Driver Board
+    Connecting to the Controller
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#sending-messages-to-the-driver-board" class="md-nav__link">
-    Sending Messages to the Driver Board
+    Sending Messages to the Controller
   </a>
   
-    <nav class="md-nav" aria-label="Sending Messages to the Driver Board">
+    <nav class="md-nav" aria-label="Sending Messages to the Controller">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -549,10 +549,10 @@
       
         <li class="md-nav__item">
   <a href="#receiving-messages-from-the-driver-board" class="md-nav__link">
-    Receiving Messages from the Driver Board
+    Receiving Messages from the Controller
   </a>
   
-    <nav class="md-nav" aria-label="Receiving Messages from the Driver Board">
+    <nav class="md-nav" aria-label="Receiving Messages from the Controller">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -582,12 +582,12 @@
                   
 
 
-<h1 id="communication-protocol-for-client-device-and-tappytap-driver-board">Communication Protocol for Client Device and TappyTap Driver Board</h1>
-<p>This section outlines the communication protocol for a client device to connect to a the TappyTap Driver Board using Bluetooth 5 (LE). see 'script.js' in the examples folder for an implementation of this protocol.</p>
-<h2 id="connecting-to-the-driver-board">Connecting to the Driver Board</h2>
-<p>The Driver Board advertises itself as a BLE server with the service UUID <code>4fafc201-1fb5-459e-8fcc-c5c9c331914b</code>. The client device should initiate a scan for BLE devices and look for the one advertising this service UUID. Once found, the client device should establish a connection to the BLE server (the Driver Board).</p>
-<h2 id="sending-messages-to-the-driver-board">Sending Messages to the Driver Board</h2>
-<p>To send a message from the client device to the Driver Board, the client device should write to the BLE characteristic with the UUID <code>beb5483e-36e1-4688-b7f5-ea07361b26a8</code>.</p>
+<h1 id="communication-protocol-for-client-device-and-tappytap-driver-board">Communication Protocol for Client Device and TappyTap Controller</h1>
+<p>This section outlines the communication protocol for a client device to connect to a the TappyTap Controller using Bluetooth 5 (LE). see 'script.js' in the examples folder for an implementation of this protocol.</p>
+<h2 id="connecting-to-the-driver-board">Connecting to the Controller</h2>
+<p>The Controller advertises itself as a BLE server with the service UUID <code>4fafc201-1fb5-459e-8fcc-c5c9c331914b</code>. The client device should initiate a scan for BLE devices and look for the one advertising this service UUID. Once found, the client device should establish a connection to the BLE server (the Controller).</p>
+<h2 id="sending-messages-to-the-driver-board">Sending Messages to the Controller</h2>
+<p>To send a message from the client device to the Controller, the client device should write to the BLE characteristic with the UUID <code>beb5483e-36e1-4688-b7f5-ea07361b26a8</code>.</p>
 <h3 id="sent-message-types-and-structure">Sent Message Types and Structure</h3>
 <ul>
 <li>
@@ -645,8 +645,8 @@
 </ul>
 </li>
 </ul>
-<h2 id="receiving-messages-from-the-driver-board">Receiving Messages from the Driver Board</h2>
-<p>The client device should also monitor the same BLE characteristic (UUID <code>beb5483e-36e1-4688-b7f5-ea07361b26a8</code>) for notifications to receive messages from the Driver Board.</p>
+<h2 id="receiving-messages-from-the-driver-board">Receiving Messages from the Controller</h2>
+<p>The client device should also monitor the same BLE characteristic (UUID <code>beb5483e-36e1-4688-b7f5-ea07361b26a8</code>) for notifications to receive messages from the Controller.</p>
 <h3 id="received-message-types-and-structure">Received Message Types and Structure</h3>
 <ul>
 <li>

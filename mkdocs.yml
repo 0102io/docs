@@ -1,6 +1,37 @@
 site_name: TappyTap Documentation
 
-site_url: https://0102.io/tappytap/docs
+site_url: https://docs.0102.io
+repo_url: https://github.com/0102io/testing
+edit_uri: https://github.com/0102io/docs/edit/main/docs
+
+extra_css: [stylesheets/extra.css]
+
+theme: 
+  name: material
+  features:
+    - navigation.footer
+    - navigation.tracking
+    - content.tabs.link
+    - content.action.edit
+  palette: 
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      # primary: custom
+      # accent: custom
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      # primary: custom
+      # accent: custom
+      scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+
 nav: 
   - Home: index.md
   - About: about.md
@@ -12,5 +43,3 @@ nav:
     - Compiling the Controller Firmware: fwdocs/compiling.md
     - Controller Firmware Overview: fwdocs/controllerfw.md
     - Battery PCB Firmware Overview: fwdocs/batteryfw.md
-# theme: readthedocs
-theme: material
