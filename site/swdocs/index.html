@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://0102.io/tappytap/docs/swdocs/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Software - TappyTap Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Software";
+        var mkdocs_page_input_path = "swdocs.md";
+        var mkdocs_page_url = "/tappytap/docs/swdocs/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> TappyTap Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../about/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../hwdocs/">Hardware</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Software</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#installation-requirements">Installation Requirements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running">Running</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#building">Building</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-build">Running Build</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#publishing">Publishing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-chrome">Running chrome:</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Firmware</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../fwdocs/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fwdocs/protocol/">Communication Protocol</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fwdocs/compiling/">Compiling the Controller Firmware</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fwdocs/controllerfw/">Controller Firmware Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../fwdocs/batteryfw/">Battery PCB Firmware Overview</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">TappyTap Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Software</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="dev-page-documentation">Dev Page Documentation</h1>
+<h2 id="installation-requirements">Installation Requirements</h2>
+<ul>
+<li>install nodejs</li>
+<li>instal bun ( https://bun.sh )</li>
+</ul>
+<p>then in terminal, run:</p>
+<pre><code>bun install
+</code></pre>
+<h2 id="running">Running</h2>
+<p>Open two terminals, in the tapmeta directory and run:</p>
+<p>Terminal 1:</p>
+<pre><code>cd packages/tapcanvas
+bun run dev
+</code></pre>
+<p>Terminal 2:</p>
+<pre><code>cd packages/tapserver
+bun run dev
+</code></pre>
+<h2 id="building">Building</h2>
+<pre><code>cd packages/tapcanvas
+bun run build
+</code></pre>
+<h2 id="running-build">Running Build</h2>
+<pre><code>cd packages/tapcanvas
+bun run build &amp;&amp; bunx serve -n .
+http://localhost:3000/app-dev/
+</code></pre>
+<h2 id="publishing">Publishing</h2>
+<pre><code>cd packages/tapcanvas
+bun publish.js
+</code></pre>
+<h2 id="running-chrome">Running chrome:</h2>
+<pre><code>/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --app=&quot;https://localhost:8581/app-dev/&quot;
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../hwdocs/" class="btn btn-neutral float-left" title="Hardware"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../fwdocs/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../hwdocs/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../fwdocs/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

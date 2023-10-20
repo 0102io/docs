@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://0102.io/tappytap/docs/fwdocs/compiling/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Compiling the Controller Firmware - TappyTap Documentation</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Compiling the Controller Firmware";
+        var mkdocs_page_input_path = "fwdocs/compiling.md";
+        var mkdocs_page_url = "/tappytap/docs/fwdocs/compiling/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> TappyTap Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../about/">About</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../hwdocs/">Hardware</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../swdocs/">Software</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Firmware</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../protocol/">Communication Protocol</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Compiling the Controller Firmware</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#steps-for-building-new-core-libraries">Steps for Building New Core Libraries</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../controllerfw/">Controller Firmware Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../batteryfw/">Battery PCB Firmware Overview</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">TappyTap Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Firmware</li>
+      <li class="breadcrumb-item active">Compiling the Controller Firmware</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="compiling-the-firmware">Compiling the Firmware</h1>
+<p>This project uses re-compiled arduino-esp32 core libraries using the <a href="https://github.com/espressif/esp32-arduino-lib-builder">esp32-arduino-lib-builder project</a>, and it is structured for compilation with PlatformIO. I'm not an expert with PlatformIO, ESP-IDF, the library builder, etc. so I'd recommend following other guides to get those all set up first.</p>
+<h2 id="steps-for-building-new-core-libraries">Steps for Building New Core Libraries</h2>
+<ol>
+<li>
+<p>Edit <code>esp32-arduino-lib-builder/configs/defconfig.esp32s3</code> (settings for this project are located in the documentation folder)</p>
+</li>
+<li>
+<p>In a terminal window, navigate to the <code>esp32-arduino-lib-builder</code> folder and enter:
+    <code>bash
+    rm -rf build # remove the existing build files if you've already compiled them
+    rm -rf components/esp-rainmaker # I had to do this to get my build on Oct 2 to work, may not be necessary now
+    ./build.sh -t esp32s3 -I idf-release/v5.1
+    ./tool/copy-to-arduino # if using arduino, or copy the files listed in the script to the relevant location for platformIO - I believe it is /Users/[your_username]/.platformio/packages/framework-arduinoespressif32</code>
+Note regarding the rainmaker module: I last built core files on Oct. 2, 2023, and encountered an error similar to <a href="https://github.com/espressif/esp32-arduino-lib-builder/issues/138">this GitHub issue</a>. For me, pulling the latest update (even fully re-installing the repository) didn't resolve the issue, so I added a specific line to the <code>update-components.sh</code> file and removed the existing rainmaker component with the command above.</p>
+</li>
+</ol>
+<pre><code class="language-bash">#
+# CLONE/UPDATE ESP-RAINMAKER
+#
+echo &quot;Updating ESP-RainMaker...&quot;
+if [ ! -d &quot;$AR_COMPS/esp-rainmaker&quot; ]; then
+    git clone $RMAKER_REPO_URL &quot;$AR_COMPS/esp-rainmaker&quot; &amp;&amp; \
+    git -C &quot;$AR_COMPS/esp-rainmaker&quot; checkout 0414a8530ec1ac8714269302503c71c238b68836 # &lt;------ this line
+    git -C &quot;$AR_COMPS/esp-rainmaker&quot; submodule update --init --recursive
+else
+    git -C &quot;$AR_COMPS/esp-rainmaker&quot; fetch &amp;&amp; \
+    git -C &quot;$AR_COMPS/esp-rainmaker&quot; pull --ff-only &amp;&amp; \
+    git -C &quot;$AR_COMPS/esp-rainmaker&quot; submodule update --init --recursive
+fi
+if [ $? -ne 0 ]; then exit 1; fi
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../protocol/" class="btn btn-neutral float-left" title="Communication Protocol"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../controllerfw/" class="btn btn-neutral float-right" title="Controller Firmware Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../protocol/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../controllerfw/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
