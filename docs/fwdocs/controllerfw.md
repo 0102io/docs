@@ -10,6 +10,8 @@ The controller's primary job is to receive a set of taps via the [bluetooth prot
 
 This project uses esp32-arduino, with re-compiled libraries made with the [esp32-arduino-lib-builder project](https://github.com/espressif/esp32-arduino-lib-builder), and it is structured for compilation with PlatformIO (and we use the VS Code extension). You can follow their guides for getting set up.
 
+Next you'll need to move the custom board json files into your platformio folder. From the repository's root directory, copy the files from `./boards` into your platformio boards directory (for example, on a Mac this would likely be in `/Users/[your username]/.platformio/platforms/espressif32/boards`). 
+
 Once you have those set up, you should be able to hit upload and let PlatformIO handle the rest.
 
 # Building New esp32-arduino Libraries
@@ -48,10 +50,8 @@ if [ $? -ne 0 ]; then exit 1; fi
 ```
 
 # To-Dos
-1. Optimize for better performance, especially reducing power consumption. We have very limited experience with this chip and firmware development in general, so we won't take offense if you think it should be re-written completely. Regarding power consumption, the most effective steps we've taken have been the modem sleep, auto light sleep, and 12v regulator sleep. While not tapping, the controller seems to draw ~50mA on average. While tapping, with the regulator enabled, the controller itself seems to draw 150-200mA. One thing we've seen is that NimBLE might be more power efficient for bluetooth.
-2. 
-X. Add HBDriver status register error notifications to the status message (see TapHandler::checkDiagnosticReg)
-X. Change TapQueue to store data in the same format as a TAP_OUT message - we don't need arrays for each setting. TapHandler::tap() has to be updated accordingly.
-X. Add repeatCT and repeatDelay settings (ideally make the above change first though)
-X. Figure out what we should do for USB_VID and USB_PID in pins_arduino.h
-X. GPIOs are disabled in light sleep, not sure if this causes problems
+1. Reduce power consumption. So far we've managed to reduce power by using the modem-sleep config setting, auto light sleep, and disabling the 12v regulator while we're idle. This results in an idle average current draw of around ~50mA, though it is well below that in between BLE connection events and well above that during those events, which happen at least every 30ms. While tapping, with the regulator enabled, the controller itself seems to draw 150-200mA. We're hoping some wizard our there can change some other settings to bring at least the idle current draw much lower. One thing we've seen is that NimBLE might be more power efficient for bluetooth.
+2. Change TapQueue to store data in the same format as a TAP_OUT message - we don't need arrays for each setting. TapHandler::tap() has to be updated accordingly.
+3. Add repeatCT and repeatDelay settings (ideally make the above change first though)
+4. Figure out what we should do with the IMU data! 
+5. Add HBDriver status register error notifications to the status message (see TapHandler::checkDiagnosticReg)
