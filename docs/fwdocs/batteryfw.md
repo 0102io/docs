@@ -21,4 +21,3 @@ Once you've set all of that up, initiate the upload and hold the GND and UPDI wi
 [reference pic needed]
 
 # To-Dos
-- [bug] Currently there is a short delay after each I2C message is sent. Without this, writing messages to the controller result in an address NACK error (confirmation needed).
