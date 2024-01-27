@@ -25,12 +25,12 @@ Here are the steps we used:
 1. Edit `esp32-arduino-lib-builder/configs/defconfig.esp32s3` (settings for this project are located in the `documentation` folder of the controller firmware repository).
 
 2. In a terminal window, navigate to the `esp32-arduino-lib-builder` folder and enter:
-    ```bash
-    rm -rf build # remove the existing build files if you've already compiled them
-    rm -rf components/esp-rainmaker # we had to do this to get our build on Oct 2 to work, may not be necessary now
-    ./build.sh -t esp32s3 -I idf-release/v5.1
-    ./tool/copy-to-arduino # after this, copy the files listed in the script to the relevant location for platformIO - probably /Users/[your_username]/.platformio/packages/framework-arduinoespressif32
-    ```
+```bash
+rm -rf build # remove the existing build files if you've already compiled them
+rm -rf components/esp-rainmaker # we had to do this to get our build on Oct 2 to work, may not be necessary now
+./build.sh -t esp32s3 -I idf-release/v5.1
+./tool/copy-to-arduino # after this, copy the files listed in the script to the relevant location for platformIO - probably /Users/[your_username]/.platformio/packages/framework-arduinoespressif32
+```
 Note regarding the rainmaker module: we last built core files on Oct. 2, 2023, and encountered an error similar to [this GitHub issue](https://github.com/espressif/esp32-arduino-lib-builder/issues/138). For us, pulling the latest update (even fully re-installing the repository) didn't resolve the issue, so we added a specific line to the `update-components.sh` file (below) and removed the existing rainmaker component with the command above.
 ```bash
 #
