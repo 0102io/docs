@@ -51,7 +51,8 @@ if [ $? -ne 0 ]; then exit 1; fi
 
 # To-Dos
 1. Reduce power consumption. So far we've managed to reduce power by using the modem-sleep config setting, auto light sleep, and disabling the 12v regulator while we're idle. This results in an idle average current draw of around ~50mA, though it is well below that in between BLE connection events and well above that during those events, which happen at least every 30ms. While tapping, with the regulator enabled, the controller itself seems to draw 150-200mA. We're hoping some wizard our there can change some other settings to bring at least the idle current draw much lower. One thing we've seen is that NimBLE might be more power efficient for bluetooth.
-2. Change TapQueue to store data in the same format as a TAP_OUT message - we don't need arrays for each setting. TapHandler::tap() has to be updated accordingly.
-3. Add repeatCT and repeatDelay settings (ideally make the above change first though)
-4. Figure out what we should do with the IMU data! 
-5. Add HBDriver status register error notifications to the status message (see TapHandler::checkDiagnosticReg)
+2. Bug: really short on duration + off durations cause the controller to crash. e.g. 0.2 on / 0.5 off it crashes; 0.1 on / 0.6 off okay, 0.4 on / 0.0 off okay
+3. Change TapQueue to store data in the same format as a TAP_OUT message - we don't need arrays for each setting. TapHandler::tap() has to be updated accordingly.
+4. Add repeatCT and repeatDelay settings (ideally make the above change first though)
+5. Figure out what we should do with the IMU data! 
+6. Add HBDriver status register error notifications to the status message (see TapHandler::checkDiagnosticReg)

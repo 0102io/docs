@@ -1,6 +1,6 @@
 # Communication Protocol for Client Device and TappyTap Controller
 
-This section outlines the communication protocol for a client device to connect to a the TappyTap Controller using Bluetooth 5 (LE). see 'script.js' in the examples folder for an implementation of this protocol.
+This section outlines the communication protocol for a central device to connect to a the TappyTap Controller using Bluetooth 5 (LE). see 'script.js' in the examples folder for an implementation of this protocol.
 
 ## Connecting to the Controller
 
@@ -8,83 +8,108 @@ The Controller advertises itself as a BLE server with the service UUID `4fafc201
 
 ## Sending Messages to the Controller
 
-To send a message from the client device to the Controller, the client device should write to the BLE characteristic with the UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`.
+To send a message from the client device to the Controller, the central device should write to the BLE characteristic with the UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`.
 
 ### Sent Message Types and Structure
 
 - `TAP_OUT`: Byte code `1`. The message should follow this structure:
 
-    - Byte 0: `1`
-    - Byte 1: idenfication number that is published along with the confirmation when the TAP_OUT sequence is completed
-    - Byte 2 to n: row and column index pairs for the tap sequences. Each pair consists of the row index followed by the column index. For example, the message 0x01 0xFF 0x00 0x00 0x01 0x01 = [TAP_OUT] [Identifier (FF)] [ROW 0] [COL 0] [ROW 1] [COL 1]. Row/col pairs will be tapped out according to the parameters set with TAP_CONFIG, with the pair after the TAP_OUT byte tapped first.
-        - if there are no bytes after the identifier, the current TAP_OUT sequence will be cancelled.
+    - Byte 0: Message type (`1`)
+    - Byte 1: idenfication number that is retruned by the controller along with the confirmation when the TAP_OUT sequence is completed. Sending followup TAP_OUT messages will have their contents added to the queue of taps, and the new ID will overwrite the last. Sending an ID of `0` will cancel an active pattern.
+    - Bytes 2 to n: `row` and `column` index pairs for the pattern, as well as tap parameters (optional). Each pair consists of the `row` index followed by the `column` index. To specify tap parameters, set the most significant bit of a `row` index to `1`. Then, following the `row` and `column` index pair, the next 4 bytes should be 2 bytes for a 16 bit `onDuration` (length of time to apply voltage to a coil; hundredths of a millisecond; MSB first) and 2 bytes for a 16 bit `offDuration` (length of time before the next tap executes; tenths of a millisecond; MSB first). These parameters are used for every tap following until new parameters are read. If `row`/`column` pairs are sent with no preceeding parameters, the controller will use the parameters that were last written to it (or the init parameters if it has not received any since last restarting). `row`/`column` pairs are tapped out FIFO.
 
-- `TAP_CONFIG`: Byte code `2`. The message should follow this structure:
+        TAP_OUT example 1:
+        | Byte Value | Description |
+        |---|---|
+        | 0x01 | Message type (TAP_OUT)|
+        | 0x02 | TapoutID |
+        | 0x03 | Row 3, use previous/init settings for this tap |
+        | 0x04 | Col 4 |
+        | 0x05 | Row 5, use previous/init settings for this tap |
+        | 0x06 | Col 6 |
 
-    - Byte 0: `2`
-    - Byte 1: `onDur` (in tenths of a ms, i.e. hundreds of microseconds); range is 1-30
-    - Byte 2: `offDur` (in ms); range is 10-255
-    - Byte 3: `repeatDelay` (in ms); range is 2-255
-    - Byte 4: `repeatCT` (number of repetitions; 1 = tap once); range is 1-5
+        TAP_OUT example 2:
+        | Byte Value | Description |
+        |---|---|
+        | 0x01 | Message type (TAP_OUT)|
+        | 0x02 | TapoutID |
+        | 0x83 | Row 3, use new settings for this and following taps |
+        | 0x04 | Col 4 |
+        | 0x0A | On Duration = 1ms |
+        | 0x00 | Off Duration MSB |
+        | 0x64 | Off Duration LSB, read with MSB this is 10ms |
+        | 0x05 | Row 5, use previous settings for this tap |
+        | 0x06 | Col 6 |
+        | 0x87 | Row 7, use new settings for this and following taps |
+        | 0x08 | Col 8 |
+        | 0x14 | On Duration = 2ms |
+        | 0x03 | Off Duration MSB |
+        | 0xE8 | Off Duration LSB, read with MSB this is 100ms |
+      
 
-- `CHECK_BATTERY`: Byte code `3`.
+- `GET_DEVICE_INFO`: Byte code `2`. Controller returns with `DEVICE_INFO` message.
 
-- `TAP_OUT_EXPLICIT`: Byte code `4`. The message should follow this structure:
+- `CANCEL_AND_TAP`: Byte code `3`. Clears the queue of taps and then loads the new taps through the same function called by TAP_OUT. This can be used to clear the queue and start a new pattern in 1 BLE pulse.
 
-    - Byte 0: `4`
-    - Byte 1: idenfication number that is published along with the confirmation when the TAP_OUT sequence is completed
-    - Byte 2 to n: row and column index pairs for the tap sequences, as well as on duration and off duration for each tap. Data is ordered as: [row] [col] [onDuration] [offDuration]. For example, the message 0x04 0xFF 0x00 0x00 0x0A 0x19 0x01 0x01 0x14 0x32 = [TAP_OUT] [Identifier (FF)] [ROW 0] [COL 0] [ON DURATION 1ms] [OFF DURATION 25ms] [ROW 1] [COL 1] [ON DURATION 2ms] [OFF DURATION 50ms]. Currently this will cause repeatCT to be set to 1 (i.e. taps are not repeated). Row/col pairs will be tapped out with the pair after the TAP_OUT byte tapped first. Note that on duration values are converted into hundreds of microseconds, e.g. 0x01 = 100us = 0.1ms.
-        - if there are no bytes after the identifier, the current TAP_OUT sequence will be cancelled.
-
-- `GET_VERSION`: Byte code `5`.
-
-- `START_IMU_STREAM`: Byte code `6`.
-
-- `STOP_IMU_STREAM`: Byte code `7`.
-
-- 'TAP_ALL': Byte code '8'. The message should follow this structure:
-
-    - Byte 0: `4`
-    - Byte 1: idenfication number that is published along with the confirmation when the TAP_OUT sequence is completed
-    - Byte 2: on duration (tenths of a millisecond) that will be used for all taps in the pattern; follows the same limits as TAP_OUT and TAP_OUT_EXPLICIT
-    - Byte 3: off duration (tenths of a milliseond - note that this is different from TAP_OUT and TAP_OUT_EXPLICIT which use ms for off duration) that will be used for all taps in the pattern. The lower limit is 0 (no delay), the upper limit is the same as for TAP_OUT and TAP_OUT_EXPLICIT.
-    - Byte 4 to n: row and column index pairs for the tap sequences
+- `UPDATE_STATUS_FREQUENCY`: Byte code `4`. A second byte with the frequency in Hz must be sent. If the requested frequency is above the limit set in the firmware, the maxiumum frequency will be used instead. If 0 is sent, the frequency will be set to 1 Hz.
 
 ## Receiving Messages from the Controller
 
-The client device should also monitor the same BLE characteristic (UUID `beb5483e-36e1-4688-b7f5-ea07361b26a8`) for notifications to receive messages from the Controller.
+The client device should monitor the characteristic with UUID `d036e381-fd38-4376-801f-f5d90ba2ca64` for notifications from the Controller.
 
 ### Received Message Types and Structure
 
-- `CONFRIM_RECEIVED`: Byte code `1`. This message is sent to the client device to acknowledge that the sent message has been received and processed. This is only sent if the message was error free; otherwise an error code is sent instead.
+- `STATUS_UPDATE`: Byte code `1`. This message is sent to the client device at a user settable frequency. The returned bytes are as follows; unless otherwise noted, multi-byte values are all MSB first
 
-- `TAPOUT_COMPLETE`: Byte code `2`. This message contains 2 bytes; the first is the byte code and the second is the identifying byte sent to the microcontroller along with the TAP_OUT command. This message is sent to the client device to indicate that the tap out sequence has been completed.
 
-- `BATTERY_PERCENT`: Byte code `3`. This message contains 2 bytes; the first is the byte code and the second is the estimated remaining percentage of charge remaining in the battery pack.
+    | Byte | Description |
+    |---|---|
+    | 0 | Message code (STATUS_UPDATE) |
+    | 1 | Status update frequency (Hz) |
+    | 2-5 | System time (ms) |
+    | 6 | Battery percent |
+    | 7 | Last received tapout id |
+    | 8 | Flag indicating transition from the queue being more than half full, to less than half full |
+    | 9-10 | Headroom / free space in the queue |
+    | 11-12 | First rejected index (due to a full queue; if queue is not full, this is the last tapper's index + 1, not including the message type and tapout ID bytes) |
+    | 13 | Warning code from last message (e.g. PARAM_OOB) |
+    | 14-15 | Value associated with warning code (e.g. index of the OOB parameter) |
+    | 16-19 | IMU accel X (multiplied by 1000) |
+    | 20-23 | IMU accel Y (multiplied by 1000) |
+    | 24-27 | IMU accel Z (multiplied by 1000) |
+    | 28-31 | IMU gyro X (multiplied by 1000) |
+    | 32-35 | IMU gyro Y (multiplied by 1000) |
+    | 36-39 | IMU gyro Z (multiplied by 1000) |
+    | 40 | Overtapped row index * |
+    | 41 | Overtapped column index * |
+    | 42 | Battery detected (0 for false, 1 for true) |
+    <!-- note: when reading from the status update function, remember that an additional byte is added (the message code) -->
+    
+    *Overtap warning: when a tapper is actuated at a higher duty cycle than the firmware-set soft limit, the firmware attenuates the on duration. The controller tracks a value called "heat" for each tapper, which is increased by long on durations and short intervals between taps (to that specific row/col). If enough heat is generated (calculated) when a tapper is supposed to turn on, the on duration is shortened proportionally to the heat. After the shortened tap, the controller pauses for the remainder of the expected on duration so that the pattern's cadence is unchanged (it will just appear as a softer tap). The row/col indices sent in the status message are the last indices to have generated the overtap warning. After the message is sent, the indicies are re-set to "EMPTY_TAP" (defined in firmware as 99); if these values are received, no tapper has experienced an overtap event since the last status message.
 
-- `GET_VERSION`: Byte code `4`. This message contains 6 bytes; the first is the byte code, then in order: hardware version number major, hardware version number minor, firmware version number major, firmware version number minor, firmware version patch. Version numbers can be read as: Hardware Version [major].[minor], Firmware Version [major].[minor].[patch].
+- `DEVICE_INFO`: Byte code `3`. This message contains configuration information that usually only needs to be passed to the client device once. The returned bytes are as follows; unless otherwise noted, multi-byte values are all MSB first
 
-- `IMU_DATA`: Byte code `5`. This message contains 25 bytes; the first is the byte code and the next 24 are the 6 data values polled from the IMU (acceleration x y z and gyro x y z in that order). After collecting the data as floats, the controller multiplies them by 1000 and converts them into int32 values (preserving 3 decimal places), then splits them into 4 bytes each (MSB first). 
+    | Byte | Description |
+    |---|---|
+    | 0 | Message code (DEVICE_INFO) |
+    | 1 | Serial Number (MAC Address) first octet |
+    | 2 | Serial Number (MAC Address) second octet |
+    | 3 | Serial Number (MAC Address) third octet |
+    | 4 | Serial Number (MAC Address) fourth octet |
+    | 5 | Serial Number (MAC Address) fifth octet |
+    | 6 | Serial Number (MAC Address) sixth octet |
+    | 7 | Controller hardware version (major) |
+    | 8 | Controller hardware version (minor) |
+    | 9 | Firmware version (major) |
+    | 10 | Firmware version (minor) |
+    | 11 | Firmware version (patch) |
+    | 12 | Connected board type (0 for swatch, 1 for palm) |
+    | 13 | Connected board version (major) |
+    | 14 | Connected board version (minor) |
+    | 15-16 | Maximum tap on duration (hundredths of a ms) |
 
-- `INVALID_MSG_TYPE`: Byte code `51`. This message contains 2 bytes; the first is the byte code and the second is the invalid message tpye that was received
+- `INVALID_MSG_TYPE`: Byte code `51`. This message contains 2 bytes; the first is the byte code and the second is the invalid message type that was received
 
-- `INCORRECT_MSG_SIZE`: Byte code `52`. This message contains 2 bytes; the first is the byte code and the second is the size of the received message, including the sent byte code
+- `PARAM_OOB`: Byte code `53`. This message contains 2 bytes; the first is the byte code and the second is the position of the message parameter that is out of bounds. If multiple parameters are OOB, the position of the last one will be sent. Row and column indicies that are OOB are replaced with "empty tap" indicies, which will make the controller pause for the onDuration to keep the pattern cadence intact. If the warning is given for an onDuration parameter (i.e. above the limit), the controller replaces the sent parameter with the maximum onDuration value defined in the firmware. Note that the returned index does not count the message type or tapout id bytes. needs edit
 
-- `PARAM_OOB`: Byte code `53`. This message contains 2 bytes; the first is the byte code and the second is the position of the message parameter that is out of bounds. If multiple parameters are OOB, the position of the last one will be sent. For TAP_CONFIG messages, the last received parameter will stay the same (or it will be the default parameter value if no valid config message has been received yet), and a flag is raised to indicate that the last TAP_CONFIG received was invalid (CONFIG_INVALID, see below). This flag is sent each time a new TAP_OUT message is received until a valid TAP_CONFIG message is received
-For TAP_ALL messages, invalid parameters are replaced with hard coded default values.
-
-- `CONFIG_INVALID`: Byte code `54`. This message is sent to the client device when a TAP_OUT message is received but the last TAP_CONFIG message had an error in it.
-
-- `ROW_INDEX_OOB`: Byte code `55`. This message contains 2 bytes; the first is the byte code and the second is the position of the out of bounds row index. When an out of bounds index is received, the firmware will not tap an actuator, but it will still use the timing of a normal tap, and continue with the rest of the in bounds taps. If multiple indicies are out of bounds, only the position of the last one will be sent. If a column with a larger index is also OOB, it will be reported instead.
-
-- `COL_INDEX_OOB`: Byte code `56`. This message contains 2 bytes; the first is the byte code and the second is the position of the out of bounds column index. When an out of bounds index is received, the firmware will not tap an actuator, but it will still use the timing of a normal tap, and continue with the rest of the in bounds taps. If multiple indicies are out of bounds, only the position of the last one will be sent. If a row with the same or larger index is also OOB, it will be reported instead.
-
-- `OVERTAP_WARNING`: Byte code `57`. This message is sent to the client device when the TAP_CONFIG parameters have set the combination of onDur, repeatCT, and repeatDelay too high. onDur is automatically reduced to a safer value.
-
-- `DAMAGED_TAPPER`: Byte code `58`. This message contains 3 bytes; the first is the byte code, the second is the row index and the third is the column index. This message is sent when the current measured for a tap doesn't exceed the minimum value considered normal/healthy. 
-
-- `OC_EVENT`: Byte code `59`. This message is sent when an overcurrent event is detected, i.e. when the on board analog circuitry detects a sustained current being drawn by the H-bridge driver ICs. The on board circuitry automatically disables the H bridge outputs. This should only happen in an event where the controller turns an output on and then somehow misses turning it off (e.g. if an SPI timing error causes a write commend to be missed) because the tap configuration settings should prevent a user from entering tap on-durations from reaching this threshold. In cases where the controller crashes mid-tap, this message will likely not be generated.
-
-- `BATTERY_POLL_COOLDOWN`: Byte code `60`. This message is sent to the client device when the controller receives a battery poll request too quickly after a perviously sent request.
-
-- `OTA_TIMEOUT`: Byte code `61`. This message is sent to the client device when the controller receives an OTA upload request but the user doesn't press the 'user button' before the timeout period.
+- `OTA_TIMEOUT`: Byte code `61`. This message is sent to the client device when the controller receives an OTA upload request but the user doesn't press the 'interact button' before the timeout period.
