@@ -4,7 +4,7 @@
 - Install VSCode and the PlatformIO extension
 - Build the project once (PlatformIO > Build)
 - Find your .platformio directory (probably at `~/.platformio/`). Then copy these files:
-  - `out/package_esp32_index.template.json` to `~/.platformio/packages/framework-arduinoespressif32/package.json`
+  - `out/package_esp32_index.template.json` to `~/.platformio/packages/framework-arduinoespressif32/package/` (the package directory isn't built by platformio by default)
   - `out/tools/esp32-arduino-libs/versions.txt` and `out/tools/esp32-arduino-libs/esp32s3` to `~/.platformio/packages/framework-arduinoespressif32/tools/sdk/.`
 - Build the project again
 

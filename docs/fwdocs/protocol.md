@@ -65,27 +65,17 @@ The client device should monitor the characteristic with UUID `d036e381-fd38-437
     | Byte | Description |
     |---|---|
     | 0 | Message code (STATUS_UPDATE) |
-    | 1 | Status update frequency (Hz) |
-    | 2-5 | System time (ms) |
-    | 6 | Battery percent |
-    | 7 | Last received tapout id |
-    | 8 | Flag indicating transition from the queue being more than half full, to less than half full |
-    | 9-10 | Headroom / free space in the queue |
-    | 11-12 | First rejected index (due to a full queue; if queue is not full, this is the last tapper's index + 1, not including the message type and tapout ID bytes) |
-    | 13 | Warning code from last message (e.g. PARAM_OOB) |
-    | 14-15 | Value associated with warning code (e.g. index of the OOB parameter) |
-    | 16-19 | IMU accel X (multiplied by 1000) |
-    | 20-23 | IMU accel Y (multiplied by 1000) |
-    | 24-27 | IMU accel Z (multiplied by 1000) |
-    | 28-31 | IMU gyro X (multiplied by 1000) |
-    | 32-35 | IMU gyro Y (multiplied by 1000) |
-    | 36-39 | IMU gyro Z (multiplied by 1000) |
-    | 40 | Overtapped row index * |
-    | 41 | Overtapped column index * |
-    | 42 | Battery detected (0 for false, 1 for true) |
+    | 1 | Battery percent |
+    | 2 | Last received tapout id |
+    | 3-4 | Headroom / free space in the queue |
+    | 5-8 | IMU accel X (multiplied by 1000) |
+    | 9-12 | IMU accel Y (multiplied by 1000) |
+    | 13-16 | IMU accel Z (multiplied by 1000) |
+    | 17-20 | IMU gyro X (multiplied by 1000) |
+    | 21-24 | IMU gyro Y (multiplied by 1000) |
+    | 25-28 | IMU gyro Z (multiplied by 1000) |
+    | 29-30 | IMU temperature (multiplied by 10) |
     <!-- note: when reading from the status update function, remember that an additional byte is added (the message code) -->
-    
-    *Overtap warning: when a tapper is actuated at a higher duty cycle than the firmware-set soft limit, the firmware attenuates the on duration. The controller tracks a value called "heat" for each tapper, which is increased by long on durations and short intervals between taps (to that specific row/col). If enough heat is generated (calculated) when a tapper is supposed to turn on, the on duration is shortened proportionally to the heat. After the shortened tap, the controller pauses for the remainder of the expected on duration so that the pattern's cadence is unchanged (it will just appear as a softer tap). The row/col indices sent in the status message are the last indices to have generated the overtap warning. After the message is sent, the indicies are re-set to "EMPTY_TAP" (defined in firmware as 99); if these values are received, no tapper has experienced an overtap event since the last status message.
 
 - `DEVICE_INFO`: Byte code `3`. This message contains configuration information that usually only needs to be passed to the client device once. The returned bytes are as follows; unless otherwise noted, multi-byte values are all MSB first
 

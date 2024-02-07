@@ -18,3 +18,5 @@ The controller's primary job is to receive a set of taps via the [bluetooth prot
 9. Do something with the touch detection pins (e.g. FPC not connected notification)
 10. Make it so that the device type (e.g. glove, patch) can be changed through bluetooth.
 11. Bring back repeat tap setting.
+12. Send central a message with all warnings from a tapout message (e.g. index OOB)
+13. change IMU polling rate based on status update freq.
