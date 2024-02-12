@@ -32,7 +32,9 @@ sudo apt-get update &&
     git clone https://github.com/espressif/esp32-arduino-lib-builder &&
     git clone https://github.com/0102io/TappyTap-ControllerFirmware &&
     cp TappyTap-ControllerFirmware/documentation/defconfig.esp32s3 esp32-arduino-lib-builder/configs/defconfig.esp32s3 &&
-    cd esp32-arduino-lib-builder && ./build.sh -t esp32s3 &&
+    cd esp32-arduino-lib-builder && 
+    git checkout release/v4.4 && 
+    ./build.sh -t esp32s3 &&
     zip -FSr out.zip out
 ```
 
