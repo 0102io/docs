@@ -53,6 +53,8 @@ To send a message from the client device to the Controller, the central device s
 
 - `UPDATE_STATUS_FREQUENCY`: Byte code `4`. A second byte with the frequency in Hz must be sent. If the requested frequency is above the limit set in the firmware, the maxiumum frequency will be used instead. If 0 is sent, the frequency will be set to 1 Hz.
 
+- `CHANGE_DEFAULT_SUBSTRATE`: Byte code `5`. Send with 3 more bytes for `substrateType`, `substrateVMajor`, and `substrateVMinor`. These values are saved to non-volatile memory and used to set the bluetooth device name. They can be read using `GET_DEVICE_INFO`.
+
 ## Receiving Messages from the Controller
 
 The client device should monitor the characteristic with UUID `d036e381-fd38-4376-801f-f5d90ba2ca64` for notifications from the Controller.
