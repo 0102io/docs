@@ -16,35 +16,25 @@ To send a message from the client device to the Controller, the central device s
 
     - Byte 0: Message type (`1`)
     - Byte 1: idenfication number that is retruned by the controller along with the confirmation when the TAP_OUT sequence is completed. Sending followup TAP_OUT messages will have their contents added to the queue of taps, and the new ID will overwrite the last. Sending an ID of `0` will cancel an active pattern.
-    - Bytes 2 to n: `row` and `column` index pairs for the pattern, as well as tap parameters (optional). Each pair consists of the `row` index followed by the `column` index. To specify tap parameters, set the most significant bit of a `row` index to `1`. Then, following the `row` and `column` index pair, the next 4 bytes should be 2 bytes for a 16 bit `onDuration` (length of time to apply voltage to a coil; hundredths of a millisecond; MSB first) and 2 bytes for a 16 bit `offDuration` (length of time before the next tap executes; tenths of a millisecond; MSB first). These parameters are used for every tap following until new parameters are read. If `row`/`column` pairs are sent with no preceeding parameters, the controller will use the parameters that were last written to it (or the init parameters if it has not received any since last restarting). `row`/`column` pairs are tapped out FIFO. If `row` and `col` are both 127, the controller will treat that tap as an "empty tap" (see `PARAM_OOB`) but will not generate a warning message.
+    - Bytes 2 to n: sets of 6 bytes for each tap in the pattern. The 6 bytes are: 
+      | Byte | Description | 
+      |---|---|
+      | 0-1 | onDuration (MSB first). This is length of time to apply voltage to a coil, in tens of microseconds (i.e. onDuration = 20 --> 200us) |
+      | 2-3 | offDuration (MSB first). This is the length of time before the next tap executes, in hundreds of microseconds (i.e. offDuration = 20 --> 2000us) |
+      | 4 | Anode ID and output pin. Bits 0-3 are the output pin. Bits 4-5 are the anode ID. Bits 6-7 are unused. Bit 0 is the LSb. |
+      | 5 | Cathode ID and output pin. Bits 0-3 are the output pin. Bits 4-5 are the anode ID. Bits 6-7 are unused. Bit 0 is the LSb. |
 
-        TAP_OUT example 1:
-        | Byte Value | Description |
-        |---|---|
-        | 0x01 | Message type (TAP_OUT)|
-        | 0x02 | TapoutID |
-        | 0x03 | Row 3, use previous/init settings for this tap |
-        | 0x04 | Col 4 |
-        | 0x05 | Row 5, use previous/init settings for this tap |
-        | 0x06 | Col 6 |
-
-        TAP_OUT example 2:
-        | Byte Value | Description |
-        |---|---|
-        | 0x01 | Message type (TAP_OUT)|
-        | 0x02 | TapoutID |
-        | 0x83 | Row 3, use new settings for this and following taps |
-        | 0x04 | Col 4 |
-        | 0x0A | On Duration = 1ms |
-        | 0x00 | Off Duration MSB |
-        | 0x64 | Off Duration LSB, read with MSB this is 10ms |
-        | 0x05 | Row 5, use previous settings for this tap |
-        | 0x06 | Col 6 |
-        | 0x87 | Row 7, use new settings for this and following taps |
-        | 0x08 | Col 8 |
-        | 0x14 | On Duration = 2ms |
-        | 0x03 | Off Duration MSB |
-        | 0xE8 | Off Duration LSB, read with MSB this is 100ms |
+      TAP_OUT example:
+      | Byte Value | Description |
+      |---|---|
+      | 0b00000001 | Message type (TAP_OUT)|
+      | 0b00000002 | TapoutID = 2 |
+      | 0b00000000 | onDuration MSB = 0 |
+      | 0b01100100 | onDuration LSB = 100, i.e. 1000us |
+      | 0b00000000 | offDuration MSB = 0 |
+      | 0b01100100 | offDuration LSB = 100, i.e. 10000us |
+      | 0b--010101 | Andode: ID = 1, output pin = 5 |
+      | 0b--101001 | Andode: ID = 3, output pin = 9 |
       
 
 - `GET_DEVICE_INFO`: Byte code `2`. Controller returns with `DEVICE_INFO` message.
@@ -53,7 +43,7 @@ To send a message from the client device to the Controller, the central device s
 
 - `UPDATE_STATUS_FREQUENCY`: Byte code `4`. A second byte with the frequency in Hz must be sent. If the requested frequency is above the limit set in the firmware, the maxiumum frequency will be used instead. If 0 is sent, the frequency will be set to 1 Hz.
 
-- `CHANGE_DEFAULT_SUBSTRATE`: Byte code `5`. Send with 3 more bytes for `substrateType`, `substrateVMajor`, and `substrateVMinor`. These values are saved to non-volatile memory and used to set the bluetooth device name. They can be read using `GET_DEVICE_INFO`.
+- `CHANGE_DEFAULT_SUBSTRATE`: Byte code `5`. Send with 3 more bytes for `substrateType` (1 = patch, 2 = palm/glove), `substrateVMajor`, and `substrateVMinor`. These values are saved to non-volatile memory and used to set the bluetooth device name. They can be read using `GET_DEVICE_INFO`.
 
 ## Receiving Messages from the Controller
 
@@ -87,6 +77,12 @@ The client device should monitor the characteristic with UUID `d036e381-fd38-437
   - `QUEUE_FULL`: Byte code `62`, + 2 data bytes. This warning is sent when the last TAP_OUT message contained more taps than could be fit into the queue. The byte code is followed by 2 bytes for the MSB and LSB of the index of the first tap that didn't fit into the queue.
   - `BOARD_OVERHEAT`: Byte code `63`, + 1 data byte. This warning is sent when the board temperature changes to a different "level", with level 0 being normal and higher levels being increasingly hot. For each level above 0, the controller attenuates the tap onDuration while keeping the pattern cadence the same. The level is included as a single byte after the warning code.
   - `OVERTAP`: Byte code `64`, + 2 data bytes. This warning is sent when an individual tapper is being driven at too high of a duty cycle. The following 2 bytes are the tapper's row and column indices. Similar to `BOARD_OVERHEAT`, the controller attenuates the onDuration of the taps on an over-tapped actuator, while keeping the cadence the same (by pausing without tapping).
+  - `HBRIDGE_DIAGNOSTIC_ERRORS`: Byte code `65`, + 2 data bytes. This warning is sent when an H-bridge driver chip reports a warning while it is being turned on or off for a tap. The first additional byte of data is the ID of the H-bridge chip that reported errors. The second data byte is a set of warning/error flags listed below. These warnings are described in the driver's [datasheet](https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MP6527GF/document_id/10142/). A warning message is only sent once when the error byte has changed.
+  
+    MSB | x | x | OC_7TO10_ERROR | OC_1TO6_ERROR | OLD_7TO10_ERROR | OLD_1TO6_ERROR | PSF_ERROR | TW_WARNING | LSB
+
+
+  - `HBRIDGE_DISABLED`: Byte code `66`, + 0 data bytes. This warning is sent when an H-bridge disbaled event is detected. This can happen when either the overcurrent or watchdog protection circuits pull the H-bridge enable pin low, which disables the H-bridge outputs until they are written to again by the microcontroller. The overcurrent circuit trips if an output has been on for too long (200-400ms). The watchdog timer trips if the microcontroller hasn't pinged it within its timeout period.
 
 - `DEVICE_INFO`: Byte code `3`. This message contains configuration information that usually only needs to be passed to the client device once. The returned bytes are as follows; unless otherwise noted, multi-byte values are all MSB first
 
